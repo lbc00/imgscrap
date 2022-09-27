@@ -47,7 +47,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 	final static Logger logger = LoggerFactory.getLogger(ImgScrapController.class);
 	
 	@Autowired
-	private ImgScrapService serivce;
+	private ImgScrapService service;
 	@Autowired
 	private MessageUtil msg;
 	@Autowired
@@ -72,7 +72,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 		
 		try {
 			// 이미지 스크랩 서비스 호출
-			serivce.create(request);
+			service.create(request);
 			response.setMsg(msg.getMessage("MSG001"));
 		} catch(BizException be) {
 			logger.error(be.getMessage(), be);
@@ -103,12 +103,12 @@ public class ImgScrapController extends CustomExceptionHandler {
 			// 쿼리 조회용 map
 			Map<String, Object> paramMap = new HashMap<>();
 			
-			int totCnt = serivce.selectImgScrapListTotCnt(paramMap);
+			int totCnt = service.selectImgScrapListTotCnt(paramMap);
 			
 			PageInfo pi = new PageInfo(totCnt, request.getPage(), request.getPage_size());
 			paramMap.put("offset", pi.getOffset());
 			paramMap.put("limit", pi.getPageSize());
-			List<ImgScrapInfoListVo> list = serivce.selectImgScrapList(paramMap);
+			List<ImgScrapInfoListVo> list = service.selectImgScrapList(paramMap);
 			
 			response.setTot_cnt(totCnt);
 			response.setTotal_page(pi.getTotalPageNo());
@@ -142,7 +142,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 		ImgScrapDetailResponseVo response = new ImgScrapDetailResponseVo();
 		
 		try {
-			ImgScrapInfoDetailVo detailVo = serivce.selectImgScrapDetail(scrapNo);
+			ImgScrapInfoDetailVo detailVo = service.selectImgScrapDetail(scrapNo);
 			if(detailVo == null) {
 				response.setMsg(msg.getMessage("MSG003"));
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -184,7 +184,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 		
 		try {
 			
-			ImgScrapInfoDetailVo detailVo = serivce.selectImgScrapDetail(scrapNo);
+			ImgScrapInfoDetailVo detailVo = service.selectImgScrapDetail(scrapNo);
 			if(detailVo == null) {
 				response.setMsg(msg.getMessage("MSG003"));
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -198,7 +198,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 			vo.setTitle(request.getTitle());
 			vo.setCont(request.getCont());
 			vo.setUserNo(request.getUser_no());
-			serivce.modifyImgScrap(vo);
+			service.modifyImgScrap(vo);
 			
 			response.setMsg(msg.getMessage("MSG001"));
 		} catch(BizException be) {
@@ -230,7 +230,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 		
 		try {
 			
-			ImgScrapInfoDetailVo detailVo = serivce.selectImgScrapDetail(scrapNo);
+			ImgScrapInfoDetailVo detailVo = service.selectImgScrapDetail(scrapNo);
 			if(detailVo == null) {
 				response.setMsg(msg.getMessage("MSG003"));
 				return new ResponseEntity<>(response, HttpStatus.BAD_REQUEST);
@@ -243,7 +243,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 			vo.setScrapNo(scrapNo);
 			vo.setUserNo(request.getUser_no());
 			vo.setDelYn("Y");
-			serivce.removeImgScrap(vo);
+			service.removeImgScrap(vo);
 			
 			response.setMsg(msg.getMessage("MSG001"));
 		} catch(BizException be) {

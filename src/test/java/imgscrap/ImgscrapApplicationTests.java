@@ -1,10 +1,10 @@
-package grip.server;
+package imgscrap;
 
 import org.junit.jupiter.api.Test;
 import org.springframework.boot.test.context.SpringBootTest;
 
 @SpringBootTest
-class GripServerLbcApplicationTests {
+class ImgscrapApplicationTests {
 
 	@Test
 	void contextLoads() {

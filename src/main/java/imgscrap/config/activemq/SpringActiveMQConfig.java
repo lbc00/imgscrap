@@ -25,11 +25,6 @@ public class SpringActiveMQConfig {
     }
     
     @Bean
-    public Queue queue() {
-        return new ActiveMQQueue("grip-server-queue");
-    }
-
-    @Bean
     public ActiveMQConnectionFactory activeMQConnectionFactory() {
         ActiveMQConnectionFactory activeMQConnectionFactory = new ActiveMQConnectionFactory();
         activeMQConnectionFactory.setBrokerURL(brokerUrl);
