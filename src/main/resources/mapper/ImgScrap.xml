@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"  "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="imgscrap.dao.ImgScrapDao">
+	<insert id="insertImgScrap">
+		/** insertImgScrap **/
+		INSERT INTO TB_IMG_SCRAP_INFO
+		     ( SCRAP_NO
+		     , TITLE
+		     , CONT
+		     , ORG_IMG_URL
+		     , ORG_IMG_FILE_NAME
+		     , IMG_SAVE_PATH
+		     , IMG_SAVE_FILE_NAME
+		     , THUMBNAIL_SAVE_PATH
+		     , THUMBNAIL_FILE_NAME
+		     , IMG_FILE_EXT
+		     , IMG_SERVICE_URL
+		     , HITS
+		     , DEL_YN
+		     , INSERT_USER_NO
+		     , INSERT_DT
+		     , UPDATE_USER_NO
+		     , UPDATE_DT
+		     ) VALUES ( 
+		       SCRAP_NO_SEQ.NEXTVAL
+		     , #{title}
+		     , #{cont}
+		     , #{orgImgUrl}
+		     , #{orgImgFileName}
+		     , #{imgSavePath}
+		     , #{imgSaveFileName}
+		     , #{thumbnailSavePath}
+		     , #{thumbnailFileName}
+		     , #{imgFileExt}
+		     , #{imgServiceUrl}
+		     , 0
+		     , 'N'
+		     , #{userNo}
+		     , NOW()
+		     , #{userNo}
+		     , NOW()
+		     )
+	
+	</insert>
+	
+	<select id="selectImgScrapList" resultType="img_scrap_info_list">
+		SELECT A.SCRAP_NO
+		     , A.TITLE
+		     , A.CONT
+		     , A.IMG_SERVICE_URL || A.THUMBNAIL_SAVE_PATH || '/' || A.THUMBNAIL_FILE_NAME || '.' || A.IMG_FILE_EXT AS THUMBNAIL_IMG_URL
+             , A.HITS
+             , A.INSERT_USER_NO
+		  FROM TB_IMG_SCRAP_INFO A
+         WHERE A.DEL_YN = 'N'
+         ORDER BY A.SCRAP_NO DESC
+         LIMIT #{limit} OFFSET #{offset}
+	</select>
+	
+	<select id="selectImgScrapListTotCnt" resultType="Integer">
+		SELECT COUNT(1) AS TOT_CNT
+		  FROM TB_IMG_SCRAP_INFO A
+         WHERE A.DEL_YN = 'N'
+	</select>
+	
+	<select id="selectImgScrapDetail" resultType="img_scrap_info_detail">
+		SELECT A.SCRAP_NO
+		     , A.TITLE
+		     , A.CONT
+		     , A.IMG_SERVICE_URL || A.IMG_SAVE_PATH || '/' || A.IMG_SAVE_FILE_NAME || '.' || A.IMG_FILE_EXT AS IMG_URL
+             , A.HITS
+             , A.INSERT_USER_NO
+		  FROM TB_IMG_SCRAP_INFO A
+         WHERE 1=1
+           AND A.DEL_YN = 'N'
+           AND A.SCRAP_NO = #{scrapNo}
+	</select>
+	
+	<update id="modifyImgScrap">
+		/** modifyImgScrap **/
+		UPDATE TB_IMG_SCRAP_INFO
+		   SET TITLE = #{title}
+		     , CONT = #{cont}
+		     , UPDATE_USER_NO = #{userNo}
+		     , UPDATE_DT = NOW()
+		 WHERE SCRAP_NO = #{scrapNo}
+	</update>
+	
+	<update id="modifyImgScrapHits">
+		/** modifyImgScrapHits **/
+		UPDATE TB_IMG_SCRAP_INFO
+		   SET HITS = HITS + 1
+		 WHERE SCRAP_NO = #{scrapNo}
+	</update>
+	
+	<update id="removeImgScrap">
+		/** removeImgScrap **/
+		UPDATE TB_IMG_SCRAP_INFO
+		   SET DEL_YN = #{delYn}
+		     , UPDATE_USER_NO = #{userNo}
+		     , UPDATE_DT = NOW()
+		 WHERE SCRAP_NO = #{scrapNo}
+	</update>
+</mapper> 
