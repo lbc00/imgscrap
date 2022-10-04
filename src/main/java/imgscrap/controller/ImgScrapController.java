@@ -127,11 +127,10 @@ public class ImgScrapController extends CustomExceptionHandler {
 		
 		return new ResponseEntity<>(response, HttpStatus.OK);
 	}
-	
+
 	/**
 	 * 이미지스크랩 상세조회
 	 * @param scrapNo
-	 * @param result
 	 * @return
 	 * @throws Exception
 	 */
@@ -197,7 +196,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 			vo.setScrapNo(scrapNo);
 			vo.setTitle(request.getTitle());
 			vo.setCont(request.getCont());
-			vo.setUserNo(request.getUser_no());
+			vo.setUpdateUserNo(request.getUser_no());
 			service.modifyImgScrap(vo);
 			
 			response.setMsg(msg.getMessage("MSG001"));
@@ -241,7 +240,7 @@ public class ImgScrapController extends CustomExceptionHandler {
 			
 			ImgScrapVo vo = new ImgScrapVo();
 			vo.setScrapNo(scrapNo);
-			vo.setUserNo(request.getUser_no());
+			vo.setUpdateUserNo(request.getUser_no());
 			vo.setDelYn("Y");
 			service.removeImgScrap(vo);
 			

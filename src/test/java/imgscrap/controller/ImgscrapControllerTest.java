@@ -77,7 +77,7 @@ public class ImgscrapControllerTest {
 		request.setTitle("제목");
 		request.setCont("내용");
 		request.setUser_no("A001");
-		long scrapNo = 1;
+		long scrapNo = 3;
 		
 		MockHttpServletResponse response = getResponse(IMGSCRAP_URL+"/"+scrapNo, request, HttpMethod.PATCH);
 		

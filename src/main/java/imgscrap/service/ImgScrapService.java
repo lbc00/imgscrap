@@ -8,14 +8,18 @@ import java.io.FileOutputStream;
 import java.io.InputStream;
 import java.io.OutputStream;
 import java.net.URL;
+import java.util.Date;
 import java.util.List;
 import java.util.Map;
 import java.util.UUID;
 
 import javax.imageio.ImageIO;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import imgscrap.repository.ImgScrapRepository;
+import imgscrap.vo.*;
+import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.BeanUtils;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.cache.annotation.CacheEvict;
@@ -28,15 +32,13 @@ import imgscrap.dao.ImgScrapDao;
 import imgscrap.exception.BizException;
 import imgscrap.util.Code;
 import imgscrap.util.ImageUtil;
-import imgscrap.vo.ImgScrapCreateRequestVo;
-import imgscrap.vo.ImgScrapInfoDetailVo;
-import imgscrap.vo.ImgScrapInfoListVo;
-import imgscrap.vo.ImgScrapVo;
 
+@Slf4j
 @Transactional(rollbackFor = {Exception.class, BizException.class})
 @Service
+@RequiredArgsConstructor
 public class ImgScrapService {
-	final static Logger logger = LoggerFactory.getLogger(ImgScrapService.class);
+	
 	
 	@Autowired
 	private ImgScrapDao dao;
@@ -57,6 +59,8 @@ public class ImgScrapService {
 	
 	@Value("${img.service.url}")
     private String imgServiceUrl;
+
+	private final ImgScrapRepository imgScrapRepository;
 	
 	
 	
@@ -80,8 +84,9 @@ public class ImgScrapService {
 		vo.setThumbnailSavePath(imgSavePathThumbnail);
 		vo.setImgFileExt(imgFileExt);
 		vo.setImgServiceUrl(imgServiceUrl);
-		vo.setUserNo(request.getUser_no());
-		
+		vo.setInsertUserNo(request.getUser_no());
+		vo.setUpdateUserNo(request.getUser_no());
+
 		// 원격 이미지 로컬 저장
 		saveImg(vo);
         
@@ -115,10 +120,10 @@ public class ImgScrapService {
             
             imgSavePathFull = imgSavePath + imgSavePathOrg + File.separator + vo.getImgSaveFileName() + "." + imgFileExt;
             
-            logger.debug("imgSavePathFull : "+imgSavePathFull);
+            log.debug("imgSavePathFull : "+imgSavePathFull);
             out = new FileOutputStream(imgSavePathFull); //저장경로
             
-            logger.debug(url.getFile());
+            log.debug(url.getFile());
  
             while(true){
                 //이미지 read
@@ -133,10 +138,10 @@ public class ImgScrapService {
             in.close();
             out.close();
             
-            logger.debug("이미지 생성 완료");
+            log.debug("이미지 생성 완료");
  
         } catch (Exception e) {
-        	logger.debug("이미지 생성 오류");
+        	log.debug("이미지 생성 오류");
             e.printStackTrace();
         	throw new BizException("이미지 생성 오류");
  
@@ -157,13 +162,13 @@ public class ImgScrapService {
 	
 	/**
 	 * 썸네일 이미지 저장
-	 * @param fileName
+	 * @param vo
 	 * @return
 	 */
 	public void saveThumbnailImg(ImgScrapVo vo) throws Exception{
 		// 썸네일 이미지 저장 폴더 생성
 		ImageUtil.mkdir(imgSavePath + imgSavePathThumbnail);
-		logger.debug("ext : "+vo.getImgFileExt());
+		log.debug("ext : "+vo.getImgFileExt());
 		String imgSavePathFull = imgSavePath + imgSavePathOrg + File.separator + vo.getImgSaveFileName() + "." + vo.getImgFileExt();
 		
 		File file = new File(imgSavePathFull);
@@ -201,12 +206,24 @@ public class ImgScrapService {
 	 * @throws Exception
 	 */
 	public void insertImgScrap(ImgScrapVo vo) throws Exception{
-		dao.insertImgScrap(vo);
+		// mybatis
+		//dao.insertImgScrap(vo);
+		
+		// jpa
+		TbImgScrapInfoVo saveVo = new TbImgScrapInfoVo();
+		BeanUtils.copyProperties(vo, saveVo);
+
+		saveVo.setDelYn("N");
+		saveVo.setInsertDt(new Date());
+		saveVo.setUpdateDt(new Date());
+		imgScrapRepository.save(saveVo);
+		
 	}
-	
+
 	/**
 	 * 이미지스크랩 목록 조회 총건수
-	 * @param request
+	 * @param paramMap
+	 * @return
 	 * @throws Exception
 	 */
 	public int selectImgScrapListTotCnt(Map<String, Object> paramMap) throws Exception {
@@ -221,10 +238,11 @@ public class ImgScrapService {
 	public List<ImgScrapInfoListVo> selectImgScrapList(Map<String, Object> paramMap) throws Exception {
 		return dao.selectImgScrapList(paramMap);
 	}
-	
+
 	/**
 	 * 이미지스크랩 상세조회
-	 * @param request
+	 * @param scrapNo
+	 * @return
 	 * @throws Exception
 	 */
 	@Cacheable(value=Code.CACHE_IMG_SCRAP, key="#scrapNo", unless="#result == null")
@@ -239,7 +257,16 @@ public class ImgScrapService {
 	 */
 	@CacheEvict(value=Code.CACHE_IMG_SCRAP, key="#vo.scrapNo")
 	public void modifyImgScrap(ImgScrapVo vo) throws Exception{
-		dao.modifyImgScrap(vo);
+		// mybatis
+		//dao.modifyImgScrap(vo);
+
+		// jpa
+		TbImgScrapInfoVo saveVo = new TbImgScrapInfoVo();
+		BeanUtils.copyProperties(vo, saveVo);
+
+		saveVo.setDelYn("N");
+		saveVo.setUpdateDt(new Date());
+		imgScrapRepository.save(saveVo);
 	}
 	
 	/**
@@ -250,10 +277,10 @@ public class ImgScrapService {
 	public void modifyImgScrapHits(ImgScrapVo vo) throws Exception{
 		dao.modifyImgScrapHits(vo);
 	}
-	
+
 	/**
 	 * 이미지스크랩 데이터 삭제
-	 * @param paramMap
+	 * @param vo
 	 * @throws Exception
 	 */
 	@CacheEvict(value=Code.CACHE_IMG_SCRAP, key="#vo.scrapNo")

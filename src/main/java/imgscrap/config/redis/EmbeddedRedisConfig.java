@@ -17,8 +17,13 @@ public class EmbeddedRedisConfig {
 	
 	@PostConstruct
 	public void redisServer() {
-		redisServer = RedisServer.builder().port(springRedisPort).setting("maxmemory 128M").build();
-		redisServer.start();
+		try{
+			redisServer = RedisServer.builder().port(springRedisPort).setting("maxmemory 128M").build();
+			redisServer.start();
+		} catch (Exception e){
+			//e.printStackTrace();
+		}
+
 	}
 	
 	@PreDestroy

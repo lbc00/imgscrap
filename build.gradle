@@ -14,7 +14,8 @@ repositories {
 
 dependencies {
 	implementation 'org.springframework.boot:spring-boot-starter-web'
-	runtimeOnly 'com.h2database:h2:1.4.197'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	runtimeOnly 'com.h2database:h2'
 	testImplementation 'org.springframework.boot:spring-boot-starter-test'
 	
 	implementation 'org.springframework.boot:spring-boot-starter-jdbc'
@@ -31,7 +32,9 @@ dependencies {
 	implementation ('it.ozimov:embedded-redis:0.7.3') { exclude group: "org.slf4j", module: "slf4j-simple" }
 	
 	// lombok
-	implementation 'org.projectlombok:lombok' 
+	implementation 'org.projectlombok:lombok'
+	annotationProcessor('org.projectlombok:lombok')
+	testAnnotationProcessor('org.projectlombok:lombok')
 }
 
 tasks.named('test') {

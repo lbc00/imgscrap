@@ -36,9 +36,9 @@
 		     , #{imgServiceUrl}
 		     , 0
 		     , 'N'
-		     , #{userNo}
+		     , #{insertUserNo}
 		     , NOW()
-		     , #{userNo}
+		     , #{updateUserNo}
 		     , NOW()
 		     )
 	
